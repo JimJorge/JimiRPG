@@ -1,0 +1,72 @@
+misiones:
+  zombis:
+    nombre: Mata zombis
+    descripcion: Acaba con 10 zombis
+    entidad: ZOMBIE
+    objetivo: 10
+    recompensa_xp: 160
+    recompensa_plata: 50
+    cooldown: 86400  # 24 horas en segundos
+
+  esqueleto_cazador:
+    nombre: "Disparo Mortal"
+    descripcion: "Mata 5 esqueletos"
+    entidad: SKELETON
+    objetivo: 5
+    recompensa_xp: 100
+    recompensa_plata: 50
+    cooldown: 86400  # 24 horas en segundos
+
+  araña_oscura:
+    nombre: "Cazador de Arañas"
+    descripcion: "Derrota 8 arañas en las sombras"
+    entidad: SPIDER
+    objetivo: 8
+    recompensa_xp: 120
+    recompensa_plata: 60
+    cooldown: 43200  # 12 horas
+
+  guerrero_del_inframundo:
+    nombre: "Guerrero del Inframundo"
+    descripcion: "Elimina 6 esqueletos Wither"
+    entidad: WITHER_SKELETON
+    objetivo: 6
+    recompensa_xp: 200
+    recompensa_plata: 100
+    cooldown: 86400  # 24 horas
+
+  limpieza_de_slimes:
+    nombre: "Limpieza Pegajosa"
+    descripcion: "Acaba con 12 slimes"
+    entidad: SLIME
+    objetivo: 12
+    recompensa_xp: 90
+    recompensa_plata: 45
+    cooldown: 21600  # 6 horas
+
+  exterminador_de_creepers:
+    nombre: "Exterminador Verde"
+    descripcion: "Detona 5 creepers antes que ellos te detonen a ti"
+    entidad: CREEPER
+    objetivo: 5
+    recompensa_xp: 150
+    recompensa_plata: 80
+    cooldown: 86400  # 24 horas
+
+  cazador_del_cielo:
+    nombre: "Cazador del Cielo"
+    descripcion: "Elimina 3 fantasmas"
+    entidad: PHANTOM
+    objetivo: 3
+    recompensa_xp: 250
+    recompensa_plata: 120
+    cooldown: 86400  # 24 horas
+
+  ataque_submarino:
+    nombre: "Ataque Submarino"
+    descripcion: "Derrota 7 ahogados"
+    entidad: DROWNED
+    objetivo: 7
+    recompensa_xp: 180
+    recompensa_plata: 90
+    cooldown: 43200  # 12 horas
