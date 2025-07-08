@@ -13,9 +13,11 @@ import org.bukkit.entity.EntityType;
 public class NivelListener implements Listener {
 
     private Main plugin;
+    private NivelManager nivelManager;
 
-    public NivelListener(Main plugin) {
+    public NivelListener(Main plugin,NivelManager nivelManager) {
         this.plugin = plugin;
+        this.nivelManager = nivelManager;
     }
 
     @EventHandler
@@ -35,7 +37,7 @@ public class NivelListener implements Listener {
             if (activa != null && mob.getType() == activa.getMobObjetivo())
                 plugin.getMisionDiariaManager().aumentarProgreso(asesino);
 
-            NivelManager.agregarXP(asesino, xp);
+            nivelManager.addXP(asesino, xp);
             asesino.sendMessage("§e+" + xp + " XP por matar un §6" + mob.getType().name().toLowerCase().replace("_", " ") + "§e.");
             plugin.getScoreboardManager().CreaActualizaScoreboard(asesino);
         }

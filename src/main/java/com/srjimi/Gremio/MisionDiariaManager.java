@@ -28,10 +28,11 @@ public class MisionDiariaManager {
         private File misionFile;
         private FileConfiguration misionConfig;
         private Main plugin;
+        private NivelManager nivelManager;
 
-        public void inicializar(Main plugin) {
+        public void inicializar(Main plugin,NivelManager nivelManager) {
             this.plugin = plugin;
-
+            this.nivelManager = nivelManager;
             misionFile = new File(plugin.getDataFolder(), "misiones.yml");
             if (!misionFile.exists()) {
                 plugin.saveResource("misiones.yml", false);
@@ -149,7 +150,7 @@ public class MisionDiariaManager {
             player.sendMessage("§6§l¡Has completado la misión §e" + mision.getNombre() + "§6§l!");
             player.sendMessage("§a+ " + mision.getRecompensaXP() + " XP, + " + mision.getRecompensaPlata() + " plata");
             BancoManager.setPlata(player, mision.getRecompensaPlata());
-            NivelManager.agregarXP(player, mision.getRecompensaXP());
+            nivelManager.addXP(player, mision.getRecompensaXP());
             plugin.getScoreboardManager().CreaActualizaScoreboard(player);
         }
 

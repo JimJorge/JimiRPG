@@ -1,12 +1,14 @@
 package com.srjimi.Comandos;
 
 import com.srjimi.Main;
+import com.srjimi.Mercado.Compra.AldeanoCompraMinerales;
+import com.srjimi.Mercado.Venta.*;
+
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import com.srjimi.Mercado.Venta.*;
 
 public class ComandosMercado {
     private Main plugin;
@@ -69,7 +71,7 @@ public class ComandosMercado {
                 jugador.sendMessage(ChatColor.GREEN + "Aldeano comida creado y protegido.");
                 break;
             case "minerales":
-                new AldeanoComida(plugin).generarAldeano(loc);
+                new AldeanoCompraMinerales(plugin).generarAldeano(loc);
                 jugador.sendMessage(ChatColor.GREEN + "Aldeano minerales creado y protegido.");
                 break;
             default:

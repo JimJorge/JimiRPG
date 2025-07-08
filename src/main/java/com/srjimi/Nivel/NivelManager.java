@@ -1,132 +1,153 @@
 package com.srjimi.Nivel;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Sound;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import com.srjimi.Nivel.NivelGuardar;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.UUID;
+
+import com.srjimi.Main;
 
 public class NivelManager {
 
-    public static final int NIVEL_MAXIMO = 100;
+    private final HashMap<UUID, Integer> playerXP = new HashMap<>();
+    private final HashMap<UUID, Integer> playerLevel = new HashMap<>();
+    private final HashMap<UUID, BossBar> bossBars = new HashMap<>();
+    private final Main plugin;
+    private File nivelFile;
+    private FileConfiguration nivelConfig;
 
-    // XP base para subir del nivel 1 al 2
-    private static final int BASE_XP = 100;
-    // Incremento extra de XP requerido para cada nivel sucesivo
-    private static final int INCREMENTO_XP = 50;
+    private final int[] xpTable = new int[100];
 
-    // Devuelve el XP requerido para subir del nivel actual al siguiente
-    public static int getXPParaSubirNivel(int nivel) {
-        if (nivel < 1) nivel = 1;
-        return BASE_XP + (INCREMENTO_XP * (nivel - 1));
-    }
+    public NivelManager(Main plugin) {
+        this.plugin = plugin;
 
-    // Devuelve el XP total acumulado necesario para llegar a cierto nivel
-    public static int getXPAcumuladoParaNivel(int nivel) {
-        int totalXP = 0;
-        for (int i = 1; i < nivel; i++) {
-            totalXP += getXPParaSubirNivel(i);
+        nivelFile = new File(plugin.getDataFolder(), "niveles.yml");
+
+        if (!nivelFile.exists()) {
+            try {
+                plugin.saveResource("niveles.yml", false);
+            } catch (IllegalArgumentException e) {
+                // Si no existe, lo creamos vacío
+                try {
+                    nivelFile.getParentFile().mkdirs();
+                    nivelFile.createNewFile();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
-        return totalXP;
-    }
 
-    // Calcula el nivel del jugador basado en su XP actual
-    public static int calcularNivelPorXP(int xpActual) {
-        int nivel = 1;
-        while (nivel < NIVEL_MAXIMO && xpActual >= getXPAcumuladoParaNivel(nivel + 1)) {
-            nivel++;
-        }
-        return nivel;
-    }
+        nivelConfig = YamlConfiguration.loadConfiguration(nivelFile);
+        cargarNiveles(); // ← Carga al iniciar
 
-    // Obtener nivel actual desde NivelGuardar (tu clase que guarda datos)
-    public static int getNivel(Player jugador) {
-        return NivelGuardar.obtenerNivel(jugador);
-    }
 
-    // Obtener XP actual desde NivelGuardar
-    public static int getXP(Player jugador) {
-        return NivelGuardar.obtenerXP(jugador);
-    }
+        // Niveles escalacion
+        int maxLevel = 100;
+        int maxXP = 1_000_000; // 1 millón de XP para nivel 100
 
-    public static int getXPRequerido(int nivelActual) {
-        return getXPAcumuladoParaNivel(nivelActual + 1) - getXPAcumuladoParaNivel(nivelActual);
-    }
+        // Precalcular XP necesarios para subir de nivel de forma cuadrática
+        for (int i = 0; i < maxLevel; i++) {
+            // XP acumulado para nivel i+1 (porque i desde 0)
+            double xpAcumuladoProximo = maxXP * Math.pow(i + 1, 2) / (maxLevel * maxLevel);
+            double xpAcumuladoActual = (i == 0) ? 0 : maxXP * Math.pow(i, 2) / (maxLevel * maxLevel);
 
-    // Agregar XP al jugador y verificar subida de nivel
-    public static void agregarXP(Player jugador, int cantidad) {
-        int xpActual = getXP(jugador);
-        int nuevoXP = xpActual + cantidad;
-
-        NivelGuardar.establecerXP(jugador, nuevoXP);
-
-        verificarSubidaNivel(jugador);
-    }
-
-    // Quitar XP al jugador y verificar bajada de nivel
-    public static void quitarXP(Player jugador, int cantidad) {
-        int xpActual = getXP(jugador);
-        int nuevoXP = Math.max(0, xpActual - cantidad);
-
-        NivelGuardar.establecerXP(jugador, nuevoXP);
-
-        verificarBajadaNivel(jugador);
-    }
-
-    // Verificar si el jugador subió de nivel según XP
-    public static void verificarSubidaNivel(Player jugador) {
-        int xp = getXP(jugador);
-        int nuevoNivel = calcularNivelPorXP(xp);
-        int nivelActual = getNivel(jugador);
-
-        if (nuevoNivel > nivelActual) {
-            NivelGuardar.establecerNivel(jugador, nuevoNivel);
-
-            jugador.sendMessage("§a¡Has subido al nivel §e" + nuevoNivel + "§a!");
-            jugador.sendActionBar(
-                    Component.text("¡Has subido al nivel " + nuevoNivel + "!", NamedTextColor.GREEN)
-                            .append(Component.text(" ✦", NamedTextColor.GOLD))
-            );
-            int xpTotal = getXP(jugador);
-            NivelGuardar.establecerXP(jugador,xpTotal-xpTotal);
-            jugador.playSound(jugador.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            xpTable[i] = (int) Math.round(xpAcumuladoProximo - xpAcumuladoActual);
         }
     }
 
-    // Verificar si el jugador bajó de nivel según XP
-    public static void verificarBajadaNivel(Player jugador) {
-        int xp = getXP(jugador);
-        int nuevoNivel = calcularNivelPorXP(xp);
-        int nivelActual = getNivel(jugador);
 
-        if (nuevoNivel < nivelActual) {
-            NivelGuardar.establecerNivel(jugador, nuevoNivel);
-            jugador.sendMessage("§cHas bajado al nivel §e" + nuevoNivel + "§c.");
-        }
+    public int getXP(Player player) {
+        return playerXP.getOrDefault(player.getUniqueId(), 0);
     }
 
-    // Subir nivel manualmente (limita al máximo)
-    public static void subirNivel(Player jugador) {
-        int nivel = getNivel(jugador);
-        if (nivel < NIVEL_MAXIMO) {
-            NivelGuardar.establecerNivel(jugador, nivel + 1);
-            int xpTotal = getXP(jugador);
-            NivelGuardar.establecerXP(jugador,xpTotal-xpTotal);
-            jugador.sendMessage("§a¡Has subido recompensado con §e" + (nivel + 1) + " niveles§a!");
-            jugador.sendActionBar(
-                    Component.text("¡Has subido al nivel " + (nivel + 1) + "!", NamedTextColor.GREEN)
-                            .append(Component.text(" ✦", NamedTextColor.GOLD))
-            );
-            jugador.playSound(jugador.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-        }
+    public int getLevel(Player player) {
+        return playerLevel.getOrDefault(player.getUniqueId(), 1);
     }
 
-    // Bajar nivel manualmente (limita al mínimo 1)
-    public static void bajarNivel(Player jugador) {
-        int nivel = getNivel(jugador);
-        if (nivel > 1) {
-            NivelGuardar.establecerNivel(jugador, nivel - 1);
-            jugador.sendMessage("§cHas bajado manualmente al nivel §e" + (nivel - 1) + "§c.");
+    public int getXPNeeded(int currentLevel) {
+        if (currentLevel <= 0 || currentLevel >= 100) {
+            return Integer.MAX_VALUE; // Nivel máximo alcanzado
+        }
+        return xpTable[currentLevel - 1];
+    }
+
+    public void addXP(Player player, int amount) {
+        UUID uuid = player.getUniqueId();
+        int xp = getXP(player) + amount;
+        int level = getLevel(player);
+        boolean leveledUp = false;
+
+        while (level < 100 && xp >= getXPNeeded(level)) {
+            xp -= getXPNeeded(level);
+            level++;
+            leveledUp = true;
+        }
+
+        playerXP.put(uuid, xp);
+        playerLevel.put(uuid, level);
+
+        if (leveledUp) {
+            player.sendTitle("§a¡Nivel " + level + "!", "Has subido de nivel", 10, 70, 20);
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        }
+        guardarNivel(player);
+        plugin.getScoreboardManager().CreaActualizaScoreboard(player);
+    }
+
+
+    public void guardarNivel(Player player) {
+        UUID uuid = player.getUniqueId();
+        int xp = getXP(player);
+        int level = getLevel(player);
+
+        nivelConfig.set("jugadores." + uuid + ".xp", xp);
+        nivelConfig.set("jugadores." + uuid + ".nivel", level);
+
+        try {
+            nivelConfig.save(nivelFile);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+    public void guardarTodos() {
+        for (UUID uuid : playerXP.keySet()) {
+            nivelConfig.set("jugadores." + uuid + ".xp", playerXP.get(uuid));
+            nivelConfig.set("jugadores." + uuid + ".nivel", playerLevel.get(uuid));
+        }
+
+        try {
+            nivelConfig.save(nivelFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void cargarNiveles() {
+        if (!nivelConfig.contains("jugadores")) return;
+
+        for (String key : nivelConfig.getConfigurationSection("jugadores").getKeys(false)) {
+            UUID uuid = UUID.fromString(key);
+            int xp = nivelConfig.getInt("jugadores." + key + ".xp");
+            int level = nivelConfig.getInt("jugadores." + key + ".nivel");
+
+            playerXP.put(uuid, xp);
+            playerLevel.put(uuid, level);
+        }
+    }
+    public void removerBossBar(Player player) {
+        UUID uuid = player.getUniqueId();
+        BossBar bar = bossBars.remove(uuid);
+        if (bar != null) {
+            bar.removePlayer(player);
+        }
+        guardarNivel(player);
+    }
+
 }

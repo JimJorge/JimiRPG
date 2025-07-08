@@ -6,6 +6,7 @@ import com.srjimi.Aldeanos.ProteccionAldeanos;
 import com.srjimi.Banco.*;
 import com.srjimi.Chat.ChatListener;
 import com.srjimi.Comandos.*;
+import com.srjimi.Equipo.EquipoManager;
 import com.srjimi.Gremio.AldeanoGremio;
 import com.srjimi.Gremio.MisionDiariaManager;
 import com.srjimi.Listeners.DamageListener;
@@ -13,6 +14,7 @@ import com.srjimi.Manager.ClaseManager;
 import com.srjimi.Aldeanos.AldeanosGuardarYproteger;
 import com.srjimi.Listeners.IngresoSalidaListener;
 import com.srjimi.Nivel.NivelListener;
+import com.srjimi.Nivel.NivelManager;
 import com.srjimi.Scoreboard.ScoreboardManager;
 
 import org.bukkit.command.CommandSender;
@@ -40,6 +42,9 @@ public final class Main extends JavaPlugin implements Listener {
     private MisionDiariaManager misionDiariaManager;
     private AldeanoGremio aldeanoGremio;
     private Aldeanos aldeanos;
+    private NivelManager nivelManager;
+    private EquipoManager equipoManager;
+
     @Override
     public void onEnable() {
         crearBancoYml();
@@ -49,15 +54,17 @@ public final class Main extends JavaPlugin implements Listener {
         BancoManager.setPlugin(this);
         com.srjimi.Nivel.NivelGuardar.cargarArchivo();
         claseManager = new ClaseManager();
-        scoreboardManager = new ScoreboardManager(this);
+        nivelManager = new NivelManager(this);
+        scoreboardManager = new ScoreboardManager(this,nivelManager);
         claseManager = new ClaseManager();
         aldeanoBancoDeposito = new AldeanoBancoDeposito(this);
         aldeanoBancoRetiro = new AldeanoBancoRetiro(this);
         aldeanoBancoConversiones = new AldeanoBancoConversiones(this);
         aldeanosManager = new AldeanosGuardarYproteger(this);
         misionDiariaManager = new MisionDiariaManager();
-        misionDiariaManager.inicializar(this);
+        misionDiariaManager.inicializar(this,nivelManager);
         aldeanoGremio = new AldeanoGremio(this);
+        equipoManager = new EquipoManager(this);
 
         // comandos
         Comandos comandos = new Comandos(claseManager);
@@ -66,6 +73,7 @@ public final class Main extends JavaPlugin implements Listener {
         ComandosirSpawn comandosirSpawn = new ComandosirSpawn();
         ComandosGremio comandosGremio = new ComandosGremio(this);
         ComandosMercado comandosMercado = new ComandosMercado(this);
+        ComandosEquipo equipo = new ComandosEquipo(this,equipoManager);
 
         this.getServer().getCommandMap().register("clase", new org.bukkit.command.Command("clase") {
             @Override
@@ -109,6 +117,14 @@ public final class Main extends JavaPlugin implements Listener {
                 return true;
             }
         });
+        this.getServer().getCommandMap().register("equipo", new org.bukkit.command.Command("equipo") {
+            @Override
+            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
+                comandosMercado.ejecutar(sender, args);
+                return true;
+            }
+        });
+
         //Eventos
         getServer().getPluginManager().registerEvents(new DamageListener(claseManager), this);
         getServer().getPluginManager().registerEvents(new IngresoSalidaListener(this), this);
@@ -116,8 +132,8 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new AldeanoBancoRetiro(this), this);
         getServer().getPluginManager().registerEvents(aldeanosManager, this);
         getServer().getPluginManager().registerEvents(new InteractuarConAldeano(this,aldeanoBancoDeposito,aldeanoBancoRetiro), this);
-        getServer().getPluginManager().registerEvents(new ChatListener(), this);
-        getServer().getPluginManager().registerEvents(new NivelListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(nivelManager), this);
+        getServer().getPluginManager().registerEvents(new NivelListener(this,nivelManager), this);
         getServer().getPluginManager().registerEvents(new Aldeanos(this), this);
 
         getLogger().info("¡JimiRPG ha sido activado!");
@@ -148,6 +164,7 @@ public final class Main extends JavaPlugin implements Listener {
             e.printStackTrace();
         }
     }
+
     public ClaseManager getManager() {return claseManager;}
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
@@ -157,4 +174,6 @@ public final class Main extends JavaPlugin implements Listener {
     }
     public MisionDiariaManager getMisionDiariaManager() {return misionDiariaManager;}
     public AldeanoGremio getAldeanoGremio(){return aldeanoGremio;}
+    public EquipoManager getEquipoManager() {return equipoManager;}
+
 }

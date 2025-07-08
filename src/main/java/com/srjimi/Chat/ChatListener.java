@@ -9,13 +9,19 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class ChatListener implements Listener {
 
+    private NivelManager nivelManager;
+
+    public ChatListener(NivelManager nivelManager) {
+        this.nivelManager = nivelManager;
+    }
+
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player jugador = event.getPlayer();
         String mensaje = event.getMessage();
 
         // Personalización del chat
-        int nivel = NivelManager.getNivel(jugador);
+        int nivel = nivelManager.getLevel(jugador);
         String prefijo = ChatColor.DARK_GRAY + "[" + ChatColor.GOLD + "Nvl. "+ nivel + ChatColor.DARK_GRAY + "]";
         String nombre = ChatColor.YELLOW + jugador.getName();
         String flecha = ChatColor.GRAY + " » ";

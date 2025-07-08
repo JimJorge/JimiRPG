@@ -38,7 +38,6 @@ public class AldeanoComida implements Listener {
 
         List<MerchantRecipe> recetas = new ArrayList<>();
 
-        recetas.add(crearTrade(new ItemStack(Material.WHEAT_SEEDS, 4), BancoItemUtil.getPlataItem(1)));
         recetas.add(crearTrade(new ItemStack(Material.APPLE, 14), BancoItemUtil.getPlataItem(3)));
         recetas.add(crearTrade(new ItemStack(Material.GOLDEN_APPLE, 18), BancoItemUtil.getOroItem(2)));
 
@@ -59,22 +58,6 @@ public class AldeanoComida implements Listener {
         recetas.add(crearTrade(new ItemStack(Material.COOKIE, 42), BancoItemUtil.getPlataItem(6)));
         recetas.add(crearTrade(new ItemStack(Material.PUMPKIN_PIE, 13), BancoItemUtil.getPlataItem(6)));
 
-
-        // Lanas de colores
-        for (DyeColor color : DyeColor.values()) {
-            Material wool = Material.getMaterial(color.name() + "_WOOL");
-            if (wool != null) {
-                recetas.add(crearTrade(new ItemStack(wool, 8), BancoItemUtil.getPlataItem(3)));
-            }
-        }
-
-        // Cristales de colores
-        for (DyeColor color : DyeColor.values()) {
-            Material glass = Material.getMaterial(color.name() + "_STAINED_GLASS");
-            if (glass != null) {
-                recetas.add(crearTrade(new ItemStack(glass, 8), BancoItemUtil.getPlataItem(4)));
-            }
-        }
 
         // Establecer recetas al aldeano
         aldeano.setRecipes(recetas);

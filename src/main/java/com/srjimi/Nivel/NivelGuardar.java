@@ -14,7 +14,7 @@ public class NivelGuardar {
     private static FileConfiguration config;
 
     public static void cargarArchivo() {
-        archivo = new File("plugins/JimiRPG", "Nivel.yml");
+        archivo = new File("plugins/JimiRPG", "niveles.yml");
         if (!archivo.exists()) {
             archivo.getParentFile().mkdirs();
             try {
