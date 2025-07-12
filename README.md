@@ -7,7 +7,7 @@
 ![Vault](https://img.shields.io/badge/Vault-compatible-yellow?logo=gradle)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-> Un plugin RPG avanzado para servidores Spigot/Paper 1.20.1  
+> Un plugin RPG avanzado para servidores Spigot/Paper 1.21.7  
 > con economía, clases, protecciones, equipos, y aldeanos comerciantes personalizados.
 
 ---
