@@ -60,7 +60,6 @@
         </resources>
     </build>
 
-
     <repositories>
       <repository>
           <id>papermc-repo</id>

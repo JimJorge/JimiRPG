@@ -1,6 +1,57 @@
 name: JimiRPG
-version: 1.0
+version: 1.0.0
 main: com.srjimi.Main
 description: Juego RPG
 author: SrJimi
 api-version: '1.21.7'
+permissions:
+  jimirpg.admin:
+    description: "Permiso global del plugin"
+    default: op
+commands:
+  clase:
+    description: "Clases"
+    usage: "/clase <guerrero|mago|arquero>"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  banco:
+    description: "Banco"
+    usage: "/Banco deposito | retiro | converciones>"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  equipo:
+    description: "equipo"
+    usage: "/equipo <crear|eliminar|unirse|salir|info>"
+    aliases: [cmd, command]
+    permission-message: "No tienes permiso para usar este comando"
+  gremio:
+    description: "gremio"
+    usage: "/gremio misionesdiarias | misionesextra "
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  mercado:
+    description: "mercado"
+    usage: "/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales>"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  setspawn:
+    description: "setspawn"
+    usage: "/setspawn"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  spawn:
+    description: "spawn"
+    usage: "/spawn"
+    aliases: [cmd, command]
+    permission-message: "No tienes permiso para usar este comando"
+  anuncio:
+    description: "anuncio"
+    usage: "/anuncio"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"

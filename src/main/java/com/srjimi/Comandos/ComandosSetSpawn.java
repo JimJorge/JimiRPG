@@ -4,17 +4,16 @@ import com.srjimi.General.SpawnManager;
 import com.srjimi.Main;
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class ComandosSpawn implements BasicCommand {
+public class ComandosSetSpawn implements BasicCommand {
 
     private SpawnManager manager;
 
-    public ComandosSpawn(SpawnManager manager) {this.manager = manager;}
+    public ComandosSetSpawn(SpawnManager manager) {this.manager = manager;}
 
     @Override
     public void execute(CommandSourceStack stack, String[] args) {
@@ -23,18 +22,17 @@ public class ComandosSpawn implements BasicCommand {
             return;
         }
 
-        Location loc = manager.obtenerSpawn();
-        if (loc == null) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Spawn no configurado aún."));
+        if (!player.hasPermission("jimirpg.admin")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>No tienes permiso para usar este comando."));
             return;
         }
 
-        player.teleport(loc);
-        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>¡Has sido teletransportado al lobby!"));
+        manager.guardarSpawn(player.getLocation());
+        player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Spawn guardado correctamente."));
     }
 
     @Override
     public @Nullable String permission() {
-        return null; // Sin restricción de permisos, todos los jugadores pueden usarlo
+        return "jimirpg.admin";
     }
 }

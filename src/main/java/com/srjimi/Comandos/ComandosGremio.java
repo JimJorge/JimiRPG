@@ -1,50 +1,60 @@
 package com.srjimi.Comandos;
 
-import com.srjimi.General.SpawnManager;
-import com.srjimi.Gremio.AldeanoGremio;
 import com.srjimi.Main;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.Component;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 
-public class ComandosGremio {
+public class ComandosGremio implements BasicCommand {
 
     private Main plugin;
 
-    public ComandosGremio(Main plugin){
-        this.plugin = plugin;
-    }
+    public ComandosGremio(Main plugin) {this.plugin = plugin;}
 
-    public void ejecutar(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player jugador)) {
-            sender.sendMessage(Component.text("Solo jugadores pueden usar este comando."));
+    @Override
+    public void execute(CommandSourceStack stack, String[] args) {
+        if (!(stack.getSender() instanceof Player player)) {
+            stack.getSender().sendMessage(Component.text("Solo jugadores pueden usar este comando."));
+            return;
+        }
+        if (!player.hasPermission("jimirpg.admin")) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>No tienes permiso para usar este comando."));
             return;
         }
 
         if (args.length == 0) {
-            jugador.sendMessage(Component.text("Usa /gremio misionesdiarias | misionesextra >"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize(
+                    "<yellow>Usa: <green>/gremio misionesdiarias</green> | <green>misionesextra</green>"));
             return;
         }
-        if (!jugador.hasPermission("jimirpg.admin")) {
-            jugador.sendMessage("§cNo tienes permiso para usar este comando.");
-            return;
-        }
-        String clase = args[0].toLowerCase();
-        Location loc = jugador.getLocation();
-        switch (clase) {
-            case "misionesdiarias":
+
+        String subcomando = args[0].toLowerCase();
+        Location loc = player.getLocation();
+
+        switch (subcomando) {
+            case "misionesdiarias" -> {
                 plugin.getAldeanoGremio().crearAldeanoMisiones(loc);
-                jugador.sendMessage(ChatColor.GREEN + "Aldeano del banco creado y protegido.");
-                break;
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Aldeano de misiones diarias creado correctamente."));
+            }
 
-            case "misionesextra":
+            case "misionesextra" -> {
+                // Lógica pendiente de implementar
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Aldeano de misiones extra creado correctamente."));
+            }
 
-                jugador.sendMessage(ChatColor.GREEN + "Aldeano del banco creado y protegido.");
-                break;
-            default:
-                jugador.sendMessage("Subcomando no reconocido. Usa /gremio misionesdiarias | misionesextra>");
+            default -> {
+                player.sendMessage(MiniMessage.miniMessage().deserialize(
+                        "<red>Subcomando no reconocido.</red> <gray>Usa:</gray> <yellow>/gremio misionesdiarias | misionesextra</yellow>"));
+            }
         }
+    }
+
+    @Override
+    public @Nullable String permission() {
+        return "jimirpg.admin";
     }
 }

@@ -1,6 +1,7 @@
 package com.srjimi.Scoreboard;
 
 import com.srjimi.Banco.BancoManager;
+import com.srjimi.Equipo.EquipoManager;
 import com.srjimi.Main;
 import com.srjimi.Nivel.NivelManager;
 
@@ -17,11 +18,13 @@ public class ScoreboardManager {
 
     private final Main plugin;
     private final NivelManager nivelManager;
+    private final EquipoManager equipoManager;
     private final HashMap<UUID, org.bukkit.scoreboard.Scoreboard> playerBoards = new HashMap<>();
 
-    public ScoreboardManager(Main plugin,NivelManager nivelManager) {
+    public ScoreboardManager(Main plugin,NivelManager nivelManager,EquipoManager equipoManager) {
         this.plugin = plugin;
         this.nivelManager = nivelManager;
+        this.equipoManager = equipoManager;
     }
 
     public void CreaActualizaScoreboard(Player jugador) {
@@ -36,6 +39,12 @@ public class ScoreboardManager {
         int xp = nivelManager.getXP(jugador);
         int xpNeeded = nivelManager.getXPNeeded(nivel);
 
+        String equipoNombre = "Sin equipo";
+        if (plugin.getEquipoManager().estaEnEquipo(jugador.getName())) {
+            String eq = plugin.getEquipoManager().obtenerEquipoPorMiembro(jugador.getName());
+            equipoNombre = eq;
+        }
+
         objective.getScore(" ").setScore(score++);
 
         objective.getScore(ChatColor.GOLD + "   ➤"+ChatColor.WHITE+" Plata: "+ChatColor.GRAY+BancoManager.getPlata(jugador)).setScore(score++);
@@ -45,17 +54,12 @@ public class ScoreboardManager {
         objective.getScore(ChatColor.GOLD+" ").setScore(score++);
         objective.getScore(ChatColor.GOLD + "   ➤ "+ChatColor.WHITE+xp+" / "+xpNeeded).setScore(score++);
         objective.getScore(ChatColor.GREEN + "Nivel: " + ChatColor.YELLOW + nivel).setScore(score++);
-
-        objective.getScore(ChatColor.BLACK+" ").setScore(score++);
-        objective.getScore(ChatColor.GOLD + "   ➤"+ChatColor.WHITE+" Ninguno").setScore(score++);
+        objective.getScore(ChatColor.GOLD + "   ➤ "+ChatColor.WHITE+equipoNombre).setScore(score++);
         objective.getScore(ChatColor.GREEN + "Equipo").setScore(score++);
-
-        objective.getScore(ChatColor.WHITE+" ").setScore(score++);
         objective.getScore(ChatColor.GOLD + "   ➤"+ChatColor.WHITE+" Ninguna").setScore(score++);
         objective.getScore(ChatColor.GREEN + "Clase").setScore(score++);
 
         objective.getScore(ChatColor.RED+" ").setScore(score++);
-
         objective.getScore(ChatColor.GOLD + "   ➤ " + ChatColor.WHITE + jugador.getName()).setScore(score++);
         objective.getScore(ChatColor.GREEN + "Nombre").setScore(score++);
 

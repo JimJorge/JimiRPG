@@ -11,17 +11,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-public class ComandosBanco implements BasicCommand {
-
-    private AldeanoBancoDeposito aldeanoBancoDeposito;
-    private AldeanoBancoRetiro aldeanoBancoRetiro;
-    private AldeanoBancoConversiones aldeanoBancoConversiones;
-
-    public ComandosBanco(AldeanoBancoDeposito aldeanoBancoDeposito,AldeanoBancoConversiones aldeanoBancoConversiones,AldeanoBancoRetiro aldeanoBancoRetiro) {
-        this.aldeanoBancoDeposito = aldeanoBancoDeposito;
-        this.aldeanoBancoRetiro = aldeanoBancoRetiro;
-        this.aldeanoBancoConversiones = aldeanoBancoConversiones;
-    }
+public class ComandosMonedas implements BasicCommand {
 
     @Override
     public void execute(CommandSourceStack stack, String[] args) {
@@ -30,6 +20,7 @@ public class ComandosBanco implements BasicCommand {
             return;
         }
 
+        Main plugin = new Main();
         if (!player.hasPermission("jimirpg.admin")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>No tienes permiso para usar este comando."));
             return;
@@ -41,6 +32,10 @@ public class ComandosBanco implements BasicCommand {
             return;
         }
 
+        AldeanoBancoDeposito aldeanoBancoDeposito = new AldeanoBancoDeposito(plugin);
+        AldeanoBancoRetiro aldeanoBancoRetiro = new AldeanoBancoRetiro(plugin);
+        AldeanoBancoConversiones aldeanoBancoConversiones = new AldeanoBancoConversiones(plugin);
+
         switch (args[0].toLowerCase()) {
             case "deposito" -> {
                 aldeanoBancoDeposito.generarAldeano(player, player.getLocation());
@@ -50,11 +45,6 @@ public class ComandosBanco implements BasicCommand {
             case "retiro" -> {
                 aldeanoBancoRetiro.generarAldeano(player, player.getLocation());
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Aldeano de retiro creado correctamente."));
-            }
-
-            case "conversiones" -> {
-                aldeanoBancoConversiones.crearAldeano(player.getLocation());
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<green>Aldeano de conversiones creado correctamente."));
             }
 
             default -> {

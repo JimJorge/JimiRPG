@@ -6,7 +6,9 @@ import com.srjimi.Aldeanos.ProteccionAldeanos;
 import com.srjimi.Banco.*;
 import com.srjimi.Chat.ChatListener;
 import com.srjimi.Comandos.*;
+import com.srjimi.Equipo.EquipoListener;
 import com.srjimi.Equipo.EquipoManager;
+import com.srjimi.General.SpawnManager;
 import com.srjimi.Gremio.AldeanoGremio;
 import com.srjimi.Gremio.MisionDiariaManager;
 import com.srjimi.Listeners.DamageListener;
@@ -17,11 +19,11 @@ import com.srjimi.Nivel.NivelListener;
 import com.srjimi.Nivel.NivelManager;
 import com.srjimi.Scoreboard.ScoreboardManager;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -44,6 +46,8 @@ public final class Main extends JavaPlugin implements Listener {
     private Aldeanos aldeanos;
     private NivelManager nivelManager;
     private EquipoManager equipoManager;
+    private SpawnManager spawnManager;
+    private static Main plugin;
 
     @Override
     public void onEnable() {
@@ -55,7 +59,7 @@ public final class Main extends JavaPlugin implements Listener {
         com.srjimi.Nivel.NivelGuardar.cargarArchivo();
         claseManager = new ClaseManager();
         nivelManager = new NivelManager(this);
-        scoreboardManager = new ScoreboardManager(this,nivelManager);
+        scoreboardManager = new ScoreboardManager(this,nivelManager,equipoManager);
         claseManager = new ClaseManager();
         aldeanoBancoDeposito = new AldeanoBancoDeposito(this);
         aldeanoBancoRetiro = new AldeanoBancoRetiro(this);
@@ -65,65 +69,37 @@ public final class Main extends JavaPlugin implements Listener {
         misionDiariaManager.inicializar(this,nivelManager);
         aldeanoGremio = new AldeanoGremio(this);
         equipoManager = new EquipoManager(this);
+        spawnManager = new SpawnManager(this);
 
         // comandos
-        Comandos comandos = new Comandos(claseManager);
-        ComandosBanco comandosBanco = new ComandosBanco(this,aldeanoBancoDeposito,aldeanoBancoRetiro,aldeanoBancoConversiones);
-        ComandosSpawn comandosSpawn = new ComandosSpawn();
-        ComandosirSpawn comandosirSpawn = new ComandosirSpawn();
-        ComandosGremio comandosGremio = new ComandosGremio(this);
-        ComandosMercado comandosMercado = new ComandosMercado(this);
-        ComandosEquipo equipo = new ComandosEquipo(this,equipoManager);
 
-        this.getServer().getCommandMap().register("clase", new org.bukkit.command.Command("clase") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandos.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("banco", new org.bukkit.command.Command("banco") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosBanco.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("spawn", new org.bukkit.command.Command("spawn") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosirSpawn.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("setspawn", new org.bukkit.command.Command("setspawn") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosSpawn.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("gremio", new org.bukkit.command.Command("gremio") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosGremio.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("mercado", new org.bukkit.command.Command("mercado") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosMercado.ejecutar(sender, args);
-                return true;
-            }
-        });
-        this.getServer().getCommandMap().register("equipo", new org.bukkit.command.Command("equipo") {
-            @Override
-            public boolean execute(CommandSender sender, String commandLabel, String[] args) {
-                comandosMercado.ejecutar(sender, args);
-                return true;
-            }
-        });
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("anuncio", new ComandosAnuncios())
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("equipo", new ComandosEquipo(this,equipoManager))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("banco", new ComandosBanco(aldeanoBancoDeposito,aldeanoBancoConversiones,aldeanoBancoRetiro))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("gremio", new ComandosGremio(this))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("spawn", new ComandosSpawn(spawnManager))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("setSpawn", new ComandosSetSpawn(spawnManager))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("mercado", new ComandosMercado(this))
+        );
 
         //Eventos
         getServer().getPluginManager().registerEvents(new DamageListener(claseManager), this);
@@ -135,6 +111,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new ChatListener(nivelManager), this);
         getServer().getPluginManager().registerEvents(new NivelListener(this,nivelManager), this);
         getServer().getPluginManager().registerEvents(new Aldeanos(this), this);
+        getServer().getPluginManager().registerEvents(new EquipoListener(equipoManager), this);
 
         getLogger().info("¡JimiRPG ha sido activado!");
     }
