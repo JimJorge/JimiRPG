@@ -1,5 +1,6 @@
 package com.srjimi.General;
 
+import com.srjimi.Main;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -7,9 +8,11 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public class SpawnListener implements Listener {
 
     private final SpawnManager spawnManager;
+    private final Main plugin;
 
-    public SpawnListener(SpawnManager spawnManager) {
+    public SpawnListener(Main plugin,SpawnManager spawnManager) {
         this.spawnManager = spawnManager;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -18,6 +21,7 @@ public class SpawnListener implements Listener {
             var loc = spawnManager.obtenerSpawn();
             if (loc != null) {
                 event.getPlayer().teleport(loc);
+                plugin.getMisionDiariaManager().aumentarProgreso(event.getPlayer());
             }
         }
     }

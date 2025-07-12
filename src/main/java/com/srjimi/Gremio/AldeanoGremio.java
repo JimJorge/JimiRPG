@@ -67,8 +67,7 @@ public class AldeanoGremio implements Listener {
             }
 
             meta.setLore(lore);
-
-            // Guardamos el ID de la misión en la "localización" del ítem
+            ItemStack cerrar = crearItem(Material.RED_WOOL, ChatColor.RED + "✘ Cancelar mission");
             meta.getPersistentDataContainer().set(
                     new NamespacedKey(plugin, "mision_id"),
                     org.bukkit.persistence.PersistentDataType.STRING,
@@ -76,6 +75,7 @@ public class AldeanoGremio implements Listener {
             );
 
             item.setItemMeta(meta);
+
             gui.addItem(item);
         }
 
@@ -136,5 +136,13 @@ public class AldeanoGremio implements Listener {
         aldeano.getPersistentDataContainer().set(new NamespacedKey(plugin, "aldeano_proteccion"), PersistentDataType.STRING, "true");
 
         plugin.getLogger().info("Aldeano de misiones creado en: " + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
+    }
+
+    private ItemStack crearItem(Material material, String nombre) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(nombre);
+        item.setItemMeta(meta);
+        return item;
     }
 }

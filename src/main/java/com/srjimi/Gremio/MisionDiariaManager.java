@@ -149,7 +149,7 @@ public class MisionDiariaManager {
 
             player.sendMessage("§6§l¡Has completado la misión §e" + mision.getNombre() + "§6§l!");
             player.sendMessage("§a+ " + mision.getRecompensaXP() + " XP, + " + mision.getRecompensaPlata() + " plata");
-            BancoManager.setPlata(player, mision.getRecompensaPlata());
+            BancoManager.addPlata(player, mision.getRecompensaPlata());
             nivelManager.addXP(player, mision.getRecompensaXP());
             plugin.getScoreboardManager().CreaActualizaScoreboard(player);
         }
