@@ -73,13 +73,11 @@ public class MisionDiariaManager {
         public void aceptarMision(Player player, String id) {
             UUID uuid = player.getUniqueId();
 
+            Mision m = misiones.get(id);
             if (activas.containsKey(uuid)) {
                 player.sendMessage("§cYa tienes una misión activa.");
                 return;
-            }
-
-            Mision m = misiones.get(id);
-            if (m == null) {
+            }else if(m == null) {
                 player.sendMessage("§cMisión no encontrada.");
                 return;
             }
@@ -114,13 +112,12 @@ public class MisionDiariaManager {
             UUID uuid = player.getUniqueId();
             if (!activas.containsKey(uuid)) {
                 player.sendMessage("§cNo tienes ninguna misión activa para cancelar.");
-                return;
+            }else{
+                Mision m = activas.remove(uuid);
+                progreso.remove(uuid);
+
+                player.sendMessage("§eHas cancelado la misión: §c" + m.getNombre());
             }
-
-            Mision m = activas.remove(uuid);
-            progreso.remove(uuid);
-
-            player.sendMessage("§eHas cancelado la misión: §c" + m.getNombre());
         }
 
         public void aumentarProgreso(Player player) {

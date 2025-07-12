@@ -44,7 +44,7 @@ public class AldeanoGremio implements Listener {
         for (Mision m : plugin.getMisionDiariaManager().getMisiones()) {
             boolean enCooldown = plugin.getMisionDiariaManager().getCooldownRestante(player, m) > 0;
 
-            ItemStack item = new ItemStack(enCooldown ? Material.RED_WOOL : Material.LIME_WOOL);
+            ItemStack item = new ItemStack(enCooldown ? Material.GRAY_WOOL : Material.LIME_WOOL);
             ItemMeta meta = item.getItemMeta();
 
             meta.setDisplayName("§e" + m.getNombre());
@@ -55,7 +55,7 @@ public class AldeanoGremio implements Listener {
             lore.add("§7Cantidad: §f" + m.getCantidadObjetivo());
             lore.add("§7Recompensas: §b" + m.getRecompensaXP() + " XP §7y §f" + m.getRecompensaPlata() + " plata");
 
-            long tiempoRestante = plugin.getMisionDiariaManager().getCooldownRestante(player,m);
+            long tiempoRestante = plugin.getMisionDiariaManager().getCooldownRestante(player, m);
             if (tiempoRestante > 0) {
                 long seg = tiempoRestante / 1000;
                 long min = (seg % 3600) / 60;
@@ -67,20 +67,36 @@ public class AldeanoGremio implements Listener {
             }
 
             meta.setLore(lore);
-            ItemStack cerrar = crearItem(Material.RED_WOOL, ChatColor.RED + "✘ Cancelar mission");
             meta.getPersistentDataContainer().set(
                     new NamespacedKey(plugin, "mision_id"),
                     org.bukkit.persistence.PersistentDataType.STRING,
                     m.getId()
             );
-
             item.setItemMeta(meta);
-
             gui.addItem(item);
         }
 
+        // --- Lana roja para cancelar misión ---
+        ItemStack cancelar = new ItemStack(Material.RED_WOOL);
+        ItemMeta metaCancelar = cancelar.getItemMeta();
+        metaCancelar.setDisplayName("§c§l✘ Cancelar misión actual");
+
+        List<String> loreCancelar = new ArrayList<>();
+        loreCancelar.add("§7Haz clic para cancelar la misión actual.");
+        metaCancelar.setLore(loreCancelar);
+
+        metaCancelar.getPersistentDataContainer().set(
+                new NamespacedKey(plugin, "accion"),
+                org.bukkit.persistence.PersistentDataType.STRING,
+                "cancelar"
+        );
+        cancelar.setItemMeta(metaCancelar);
+
+        gui.setItem(53, cancelar); // Último slot
+
         player.openInventory(gui);
     }
+
 
     @EventHandler
     public void alHacerClickEnGUI(InventoryClickEvent event) {
@@ -93,7 +109,19 @@ public class AldeanoGremio implements Listener {
             ItemMeta meta = event.getCurrentItem().getItemMeta();
             if (meta == null) return;
 
-            // Recuperar el ID de la misión del ítem
+            // Verificar si es la lana roja de cancelar
+            String accion = meta.getPersistentDataContainer().get(
+                    new NamespacedKey(plugin, "accion"),
+                    org.bukkit.persistence.PersistentDataType.STRING
+            );
+
+            if ("cancelar".equals(accion)) {
+                plugin.getMisionDiariaManager().cancelarMision(player);
+                player.closeInventory();
+                return;
+            }
+
+            // Si es una misión
             String id = meta.getPersistentDataContainer().get(
                     new NamespacedKey(plugin, "mision_id"),
                     org.bukkit.persistence.PersistentDataType.STRING
@@ -105,6 +133,7 @@ public class AldeanoGremio implements Listener {
             }
         }
     }
+
 
     public void crearAldeanoMisiones(Location loc) {
         // Verifica si ya existe un aldeano con ese nombre en la misma ubicación
