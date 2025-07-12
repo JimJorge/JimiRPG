@@ -3,7 +3,7 @@
 # ⚔️ JimWord RPG
 
 ![Java](https://img.shields.io/badge/Java-17+-blue?logo=java)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-green?logo=minecraft)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.21.7-green?logo=minecraft)
 ![Vault](https://img.shields.io/badge/Vault-compatible-yellow?logo=gradle)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
