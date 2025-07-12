@@ -83,7 +83,7 @@ protecciones.yml: Posiciones y tamaños de zonas protegidas.
 ---
 ⚙️ Requisitos
 
--Spigot o Paper 1.20.1+
+-Spigot o Paper 1.21.7+
 -Vault
 -Multiverse-Core
 -LuckPerms
