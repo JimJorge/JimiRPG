@@ -1,5 +1,7 @@
 package com.srjimi.Nivel;
 
+import com.srjimi.Banco.BancoItemUtil;
+import com.srjimi.Banco.BancoManager;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -97,11 +99,27 @@ public class NivelManager {
         if (leveledUp) {
             player.sendTitle("§a¡Nivel " + level + "!", "Has subido de nivel", 10, 70, 20);
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            nivelesStatus(player,level);
         }
         guardarNivel(player);
         plugin.getScoreboardManager().CreaActualizaScoreboard(player);
     }
 
+    public void nivelesStatus(Player player, int lvl){
+        if(lvl == 5){
+            BancoManager.addOro(player,2);
+            player.sendMessage("§aFelicidades por llegar al nivel 5 se le regalo 5 de oro");
+            plugin.getScoreboardManager().CreaActualizaScoreboard(player);
+        }else if(lvl == 10 || lvl == 20 || lvl == 30 || lvl == 40 || lvl == 50 || lvl == 60 || lvl == 70 || lvl == 80 || lvl == 90 || lvl == 100){
+            BancoManager.addOro(player,10);
+            player.sendMessage("§aFelicidades por llegar al nivel "+lvl+" se le regalo 10 de oro");
+            plugin.getScoreboardManager().CreaActualizaScoreboard(player);
+        }else{
+            BancoManager.addPlata(player,5);
+            player.sendMessage("§aFelicidades por llegar al nivel "+lvl+" se le regalo 5 de plata");
+            plugin.getScoreboardManager().CreaActualizaScoreboard(player);
+        }
+    }
 
     public void guardarNivel(Player player) {
         UUID uuid = player.getUniqueId();

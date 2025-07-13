@@ -32,7 +32,7 @@ public class ComandosMercado implements BasicCommand {
 
         if (args.length == 0) {
             player.sendMessage(MiniMessage.miniMessage().deserialize(
-                    "<yellow>Usa:</yellow> <green>/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales</green>"
+                    "<yellow>Usa:</yellow> <green>/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales | shulker </green>"
             ));
             return;
         }
@@ -81,9 +81,13 @@ public class ComandosMercado implements BasicCommand {
                 new AldeanoCompraMinerales(plugin).generarAldeano(loc);
                 mensajeOK(player, "Aldeano minerales creado y protegido.");
             }
+            case "shulker" -> {
+                new AldeanoShulkers(plugin).generarAldeanoShulker(loc);
+                mensajeOK(player, "Aldeano shulkers creado y protegido.");
+            }
             default -> {
                 player.sendMessage(MiniMessage.miniMessage().deserialize(
-                        "<red>Subcomando no reconocido.</red> <gray>Usa:</gray> <yellow>/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales</yellow>"
+                        "<red>Subcomando no reconocido.</red> <gray>Usa:</gray> <yellow>/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales | shulker</yellow>"
                 ));
             }
         }

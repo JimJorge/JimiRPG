@@ -53,15 +53,6 @@ misiones:
     recompensa_plata: 80
     cooldown: 86400  # 24 horas
 
-  cazador_del_cielo:
-    nombre: "Cazador del Cielo"
-    descripcion: "Elimina 3 fantasmas"
-    entidad: PHANTOM
-    objetivo: 3
-    recompensa_xp: 250
-    recompensa_plata: 120
-    cooldown: 86400  # 24 horas
-
   ataque_submarino:
     nombre: "Ataque Submarino"
     descripcion: "Derrota 7 ahogados"

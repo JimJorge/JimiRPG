@@ -44,26 +44,24 @@ public class NivelListener implements Listener {
     }
 
 
-    // Mapeo de XP por tipo de mob hostil
     public int obtenerXP(EntityType tipo) {
         return switch (tipo) {
-            case ZOMBIE, SKELETON, SPIDER -> 10;
-            case CREEPER, STRAY, HUSK, DROWNED -> 12;
-            case SLIME -> 12;
-            case ENDERMAN -> 15;
-            case WITCH -> 20;
-            case PIGLIN_BRUTE -> 25;
-            case VINDICATOR, ILLUSIONER -> 20;
-            case EVOKER -> 30;
-            case RAVAGER -> 40;
-            case BLAZE -> 20;
-            case WITHER_SKELETON -> 25;
+            case ZOMBIE, ZOMBIE_VILLAGER, SKELETON, SPIDER -> 10;
+            case CREEPER, STRAY, HUSK, DROWNED, ZOMBIFIED_PIGLIN -> 12;
+            case SLIME, SILVERFISH, ENDERMITE -> 12;
+            case ENDERMAN, PHANTOM, SHULKER, PIGLIN, GUARDIAN, HOGLIN -> 15;
+            case WITCH, CAVE_SPIDER, PILLAGER, BOGGED -> 20;
+            case PIGLIN_BRUTE, VINDICATOR, ILLUSIONER, MAGMA_CUBE -> 25;
+            case WITHER_SKELETON, ZOGLIN -> 25;
+            case EVOKER, BLAZE, VEX, BREEZE -> 30;
             case GHAST -> 30;
-            case MAGMA_CUBE -> 20;
+            case RAVAGER -> 40;
+            case ELDER_GUARDIAN -> 60;
             case WARDEN -> 150;
             case WITHER -> 250;
             case ENDER_DRAGON -> 500;
             default -> 0;
         };
     }
+
 }

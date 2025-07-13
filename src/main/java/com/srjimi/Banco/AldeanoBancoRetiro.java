@@ -115,6 +115,12 @@ public class AldeanoBancoRetiro implements Listener {
             return;
         }
 
+        if (jugador.getInventory().firstEmpty() == -1) {
+            jugador.sendMessage("§cNo tienes espacio en el inventario.");
+            jugador.closeInventory();
+            return;
+        }
+
         ItemMeta meta = clicked.getItemMeta();
         if (meta == null || meta.getLore() == null || meta.getLore().isEmpty()) return;
 

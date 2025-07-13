@@ -1,5 +1,6 @@
 package com.srjimi.Listeners;
 
+import com.srjimi.Gremio.Mision;
 import com.srjimi.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -39,6 +40,13 @@ public class IngresoSalidaListener implements Listener {
 
         jugador.playSound(jugador.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
         plugin.getScoreboardManager().CreaActualizaScoreboard(jugador);
+
+        // ✅ Verificar si tiene misión activa
+        Mision misionActiva = plugin.getMisionDiariaManager().getMisionActiva(jugador);
+        if (misionActiva != null) {
+            // Si tienes un método para actualizar barra o progreso, lo puedes llamar aquí también
+            plugin.getMisionDiariaManager().iniciarBarraProgreso(jugador);
+        }
     }
 
 

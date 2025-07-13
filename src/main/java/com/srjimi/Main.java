@@ -5,22 +5,25 @@ import com.srjimi.Aldeanos.InteractuarConAldeano;
 import com.srjimi.Aldeanos.ProteccionAldeanos;
 import com.srjimi.Banco.*;
 import com.srjimi.Chat.ChatListener;
+import com.srjimi.Clases.AldeanoClases;
+import com.srjimi.Clases.Clase;
+import com.srjimi.Clases.ClasesListener;
+import com.srjimi.Clases.ClasesMain;
 import com.srjimi.Comandos.*;
 import com.srjimi.Equipo.EquipoListener;
 import com.srjimi.Equipo.EquipoManager;
+import com.srjimi.General.SpawnListener;
 import com.srjimi.General.SpawnManager;
 import com.srjimi.Gremio.AldeanoGremio;
 import com.srjimi.Gremio.MisionDiariaManager;
-import com.srjimi.Listeners.DamageListener;
-import com.srjimi.Manager.ClaseManager;
 import com.srjimi.Aldeanos.AldeanosGuardarYproteger;
 import com.srjimi.Listeners.IngresoSalidaListener;
+import com.srjimi.Listeners.MuerteListener;
 import com.srjimi.Nivel.NivelListener;
 import com.srjimi.Nivel.NivelManager;
 import com.srjimi.Scoreboard.ScoreboardManager;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
@@ -32,22 +35,21 @@ import java.io.IOException;
 
 public final class Main extends JavaPlugin implements Listener {
 
-    public ClaseManager claseManager;
     public ScoreboardManager scoreboardManager;
     private File bancoFile;
     private FileConfiguration bancoConfig;
     private AldeanoBancoDeposito aldeanoBancoDeposito;
     private AldeanoBancoRetiro aldeanoBancoRetiro;
     private AldeanoBancoConversiones aldeanoBancoConversiones;
-    BancoManager bancoManager;
     private AldeanosGuardarYproteger aldeanosManager;
     private MisionDiariaManager misionDiariaManager;
     private AldeanoGremio aldeanoGremio;
-    private Aldeanos aldeanos;
     private NivelManager nivelManager;
     private EquipoManager equipoManager;
     private SpawnManager spawnManager;
     private static Main plugin;
+    private ClasesMain clasesMain;
+    private AldeanoClases aldeanoClases;
 
     @Override
     public void onEnable() {
@@ -57,10 +59,8 @@ public final class Main extends JavaPlugin implements Listener {
         new AldeanoGremio(this);
         BancoManager.setPlugin(this);
         com.srjimi.Nivel.NivelGuardar.cargarArchivo();
-        claseManager = new ClaseManager();
         nivelManager = new NivelManager(this);
         scoreboardManager = new ScoreboardManager(this,nivelManager,equipoManager);
-        claseManager = new ClaseManager();
         aldeanoBancoDeposito = new AldeanoBancoDeposito(this);
         aldeanoBancoRetiro = new AldeanoBancoRetiro(this);
         aldeanoBancoConversiones = new AldeanoBancoConversiones(this);
@@ -70,6 +70,9 @@ public final class Main extends JavaPlugin implements Listener {
         aldeanoGremio = new AldeanoGremio(this);
         equipoManager = new EquipoManager(this);
         spawnManager = new SpawnManager(this);
+        clasesMain = new ClasesMain(this);
+        aldeanoClases = new AldeanoClases(this);
+        clasesMain = new ClasesMain(this);
 
         // comandos
 
@@ -101,8 +104,19 @@ public final class Main extends JavaPlugin implements Listener {
                 event -> event.registrar().register("mercado", new ComandosMercado(this))
         );
 
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("monedas", new ComandosMonedas())
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("clases", new ComandosClases(this))
+        );
+
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("niveles", new ComandosNiveles(nivelManager))
+        );
+
         //Eventos
-        getServer().getPluginManager().registerEvents(new DamageListener(claseManager), this);
         getServer().getPluginManager().registerEvents(new IngresoSalidaListener(this), this);
         getServer().getPluginManager().registerEvents(new AldeanoBancoDeposito(this), this);
         getServer().getPluginManager().registerEvents(new AldeanoBancoRetiro(this), this);
@@ -112,6 +126,9 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new NivelListener(this,nivelManager), this);
         getServer().getPluginManager().registerEvents(new Aldeanos(this), this);
         getServer().getPluginManager().registerEvents(new EquipoListener(equipoManager), this);
+        getServer().getPluginManager().registerEvents(new ClasesListener(this), this);
+        getServer().getPluginManager().registerEvents(new MuerteListener(this), this);
+
 
         getLogger().info("¡JimiRPG ha sido activado!");
     }
@@ -142,15 +159,12 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 
-    public ClaseManager getManager() {return claseManager;}
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
-    }
-    public AldeanosGuardarYproteger getAldeanosManager() {
-        return aldeanosManager;
     }
     public MisionDiariaManager getMisionDiariaManager() {return misionDiariaManager;}
     public AldeanoGremio getAldeanoGremio(){return aldeanoGremio;}
     public EquipoManager getEquipoManager() {return equipoManager;}
-
+    public ClasesMain getClasesMain(){return clasesMain;}
+    public AldeanoClases getAldeanoClases(){return aldeanoClases;}
 }

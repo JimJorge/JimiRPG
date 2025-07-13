@@ -55,3 +55,15 @@ commands:
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+  monedas:
+    description: "monedas"
+    usage: "/niveles"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+  niveles:
+    description: "niveles"
+    usage: "/niveles"
+    aliases: [cmd, command]
+    permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"

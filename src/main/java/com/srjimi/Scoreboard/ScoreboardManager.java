@@ -1,6 +1,7 @@
 package com.srjimi.Scoreboard;
 
 import com.srjimi.Banco.BancoManager;
+import com.srjimi.Clases.Clase;
 import com.srjimi.Equipo.EquipoManager;
 import com.srjimi.Main;
 import com.srjimi.Nivel.NivelManager;
@@ -45,6 +46,12 @@ public class ScoreboardManager {
             equipoNombre = eq;
         }
 
+        Clase claseObj = plugin.getClasesMain().getClase(jugador);
+        String claseNombre = (claseObj != null) ? claseObj.getNombre() : "Sin clase";
+
+        String colorNivel = getColorPorNivel(nivel);
+        String colorClase = getColorClase(claseNombre);
+
         objective.getScore(" ").setScore(score++);
 
         objective.getScore(ChatColor.GOLD + "   ➤"+ChatColor.WHITE+" Plata: "+ChatColor.GRAY+BancoManager.getPlata(jugador)).setScore(score++);
@@ -53,10 +60,10 @@ public class ScoreboardManager {
 
         objective.getScore(ChatColor.GOLD+" ").setScore(score++);
         objective.getScore(ChatColor.GOLD + "   ➤ "+ChatColor.WHITE+xp+" / "+xpNeeded).setScore(score++);
-        objective.getScore(ChatColor.GREEN + "Nivel: " + ChatColor.YELLOW + nivel).setScore(score++);
+        objective.getScore(ChatColor.GREEN + "Nivel: " + colorNivel + nivel).setScore(score++);
         objective.getScore(ChatColor.GOLD + "   ➤ "+ChatColor.WHITE+equipoNombre).setScore(score++);
         objective.getScore(ChatColor.GREEN + "Equipo").setScore(score++);
-        objective.getScore(ChatColor.GOLD + "   ➤"+ChatColor.WHITE+" Ninguna").setScore(score++);
+        objective.getScore(ChatColor.GOLD + "   ➤"+colorClase+claseNombre).setScore(score++);
         objective.getScore(ChatColor.GREEN + "Clase").setScore(score++);
 
         objective.getScore(ChatColor.RED+" ").setScore(score++);
@@ -69,6 +76,28 @@ public class ScoreboardManager {
 
         jugador.setScoreboard(board);
         playerBoards.put(jugador.getUniqueId(), board);
+    }
+    private String getColorClase(String clase) {
+        return switch (clase) {
+            case "Guerrero" -> "§b";
+            case "Mago" -> "§5";
+            case "Tanque" -> "§c";
+            default -> "§f";
+        };
+    }
+
+    private String getColorPorNivel(int nivel) {
+        if (nivel >= 100) return  "§6"; // Dorado
+        if (nivel >= 90) return "§4";   // rojo
+        if (nivel >= 80) return "§e";   // amarillo
+        if (nivel >= 70) return "§d";   // rosa
+        if (nivel >= 60) return "§5";   // morado
+        if (nivel >= 50) return "§0";   // negro
+        if (nivel >= 30) return "§9";   // Azul
+        if (nivel >= 20) return "§8";   // Gris Oscuro
+        if (nivel >= 10) return "§a";   // Verde
+        if (nivel >= 5)  return "§b";   // Cian claro
+        return "§f";                    // Gris claro
     }
 
     public void removerScoreboard(Player jugador) {
