@@ -1,83 +1,119 @@
 package com.srjimi.Listeners;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.bukkit.event.*;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.*;
+
 public class MuerteListener implements Listener {
 
-    private final JavaPlugin plugin;
-
-    public MuerteListener(JavaPlugin plugin) {
-        this.plugin = plugin;
-    }
+    private final Map<Location, UUID> cofresProtegidos = new HashMap<>();
 
     @EventHandler
     public void alMorir(PlayerDeathEvent event) {
         Player jugador = event.getEntity();
         Location loc = jugador.getLocation();
-        World mundo = loc.getWorld();
 
-        // Limpiar drops predeterminados
         event.getDrops().clear();
 
-        // Mostrar coordenadas al jugador
-        int x = loc.getBlockX();
-        int y = loc.getBlockY();
-        int z = loc.getBlockZ();
-        jugador.sendMessage("§eHas muerto en: §bX: " + x + " Y: " + y + " Z: " + z);
-        jugador.sendMessage("§aTus objetos han sido guardados en un cofre.");
+        jugador.sendMessage("§aTus objetos han sido guardados en cofres protegidos.");
 
-        // Crear cofre doble
+        // Crear cofres separados
         Location loc1 = loc.getBlock().getLocation();
         Location loc2 = loc1.clone().add(1, 0, 0);
 
         loc1.getBlock().setType(Material.CHEST);
         loc2.getBlock().setType(Material.CHEST);
 
-        // Configurar como cofre doble
-        BlockData data1 = loc1.getBlock().getBlockData();
-        BlockData data2 = loc2.getBlock().getBlockData();
+        cofresProtegidos.put(loc1, jugador.getUniqueId());
+        cofresProtegidos.put(loc2, jugador.getUniqueId());
 
-        if (data1 instanceof Chest chestData1 && data2 instanceof Chest chestData2) {
-            chestData1.setType(Chest.Type.LEFT);
-            chestData2.setType(Chest.Type.RIGHT);
-            loc1.getBlock().setBlockData(chestData1);
-            loc2.getBlock().setBlockData(chestData2);
-        }
+        Chest chest1 = (Chest) loc1.getBlock().getState();
+        Chest chest2 = (Chest) loc2.getBlock().getState();
 
-        // Obtener inventario del cofre doble
-        Inventory cofre = ((org.bukkit.block.Chest) loc1.getBlock().getState()).getBlockInventory();
+        Inventory inv1 = chest1.getInventory();
+        Inventory inv2 = chest2.getInventory();
 
-        // Guardar inventario principal
-        for (ItemStack item : jugador.getInventory().getContents()) {
-            if (item != null && item.getType() != Material.AIR) {
-                cofre.addItem(item);
+        List<ItemStack> itemsPorGuardar = new ArrayList<>();
+
+        // Inventario completo + offhand + armadura
+        Collections.addAll(itemsPorGuardar, jugador.getInventory().getContents());
+        itemsPorGuardar.add(jugador.getInventory().getItemInOffHand());
+        itemsPorGuardar.add(jugador.getInventory().getHelmet());
+        itemsPorGuardar.add(jugador.getInventory().getChestplate());
+        itemsPorGuardar.add(jugador.getInventory().getLeggings());
+        itemsPorGuardar.add(jugador.getInventory().getBoots());
+
+        for (ItemStack item : itemsPorGuardar) {
+            if (item == null || item.getType() == Material.AIR) continue;
+
+            HashMap<Integer, ItemStack> sobrante = inv1.addItem(item);
+            if (!sobrante.isEmpty()) {
+                for (ItemStack restante : sobrante.values()) {
+                    HashMap<Integer, ItemStack> sobrante2 = inv2.addItem(restante);
+                    if (!sobrante2.isEmpty()) {
+                        jugador.sendMessage("§c¡Los cofres se llenaron! Algunos objetos se han perdido.");
+                    }
+                }
             }
         }
 
-        // Guardar armadura (casco, pechera, pantalones, botas)
-        for (ItemStack armor : jugador.getInventory().getArmorContents()) {
-            if (armor != null && armor.getType() != Material.AIR) {
-                cofre.addItem(armor);
-            }
-        }
-
-        // Guardar ítem de la mano secundaria (si tiene algo)
-        ItemStack offHand = jugador.getInventory().getItemInOffHand();
-        if (offHand != null && offHand.getType() != Material.AIR) {
-            cofre.addItem(offHand);
-        }
-
-        // Vaciar el inventario completo del jugador
         jugador.getInventory().clear();
+
+        // 📍 Mensaje clickeable con coordenadas para teletransportarse
+        int x = loc1.getBlockX();
+        int y = loc1.getBlockY();
+        int z = loc1.getBlockZ();
+
+        TextComponent mensaje = Component.text("§eHaz clic aquí para teletransportarte a tu cofre: ")
+                .append(Component.text("[TP]", NamedTextColor.AQUA)
+                        .clickEvent(ClickEvent.runCommand("/tp " + jugador.getName() + " " + x + " " + y + " " + z))
+                        .hoverEvent(Component.text("§7Click para teletransportarte")));
+
+        jugador.sendMessage(Component.text("§eHas muerto en: §bX: " + x + " Y: " + y + " Z: " + z));
+        jugador.sendMessage(mensaje);
+    }
+
+    // 🔒 Prevenir saqueo
+    @EventHandler
+    public void protegerCofre(PlayerInteractEvent event) {
+        Block block = event.getClickedBlock();
+        if (block == null || block.getType() != Material.CHEST) return;
+
+        Location loc = block.getLocation();
+        UUID dueño = cofresProtegidos.get(loc);
+        if (dueño != null && !dueño.equals(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("§cEste cofre pertenece a otro jugador.");
+        }
+    }
+
+    // 🔒 Prevenir destrucción
+    @EventHandler
+    public void prevenirRompimiento(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() != Material.CHEST) return;
+
+        Location loc = block.getLocation();
+        UUID dueño = cofresProtegidos.get(loc);
+        if (dueño != null && !dueño.equals(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("§cNo puedes romper el cofre de otro jugador.");
+        } else if (dueño != null) {
+            cofresProtegidos.remove(loc); // El dueño puede romperlo y se elimina la protección
+        }
     }
 }

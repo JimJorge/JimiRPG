@@ -44,7 +44,7 @@ public class ComandosMonedas implements BasicCommand {
             return;
         }
 
-        BancoManager.addPlata(player,cantidad);
+        BancoManager.addPlata(objetivo,cantidad);
 
         // Simulación temporal:
         player.sendMessage(MiniMessage.miniMessage().deserialize(

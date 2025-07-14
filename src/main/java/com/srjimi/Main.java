@@ -127,7 +127,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new Aldeanos(this), this);
         getServer().getPluginManager().registerEvents(new EquipoListener(equipoManager), this);
         getServer().getPluginManager().registerEvents(new ClasesListener(this), this);
-        getServer().getPluginManager().registerEvents(new MuerteListener(this), this);
+        getServer().getPluginManager().registerEvents(new MuerteListener(), this);
 
 
         getLogger().info("¡JimiRPG ha sido activado!");

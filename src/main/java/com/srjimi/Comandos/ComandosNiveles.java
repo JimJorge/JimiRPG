@@ -53,7 +53,7 @@ public class ComandosNiveles implements BasicCommand {
         }
 
 
-        nivelManager.addXP(player, cantidad);
+        nivelManager.addXP(objetivo, cantidad);
 
         // Simulación temporal:
         player.sendMessage(MiniMessage.miniMessage().deserialize(
