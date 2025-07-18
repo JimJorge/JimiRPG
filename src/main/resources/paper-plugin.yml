@@ -4,10 +4,24 @@ main: com.srjimi.Main
 description: Juego RPG
 author: SrJimi
 api-version: '1.21.7'
+
+dependencies:
+  bootstrap:
+    LuckPerms:
+      load: BEFORE
+      required: true
+      join-classpath: true
+  server:
+    SomeOtherPlugin:
+      load: AFTER
+      required: false
+      join-classpath: false
+
 permissions:
   jimirpg.admin:
     description: "Permiso global del plugin"
     default: op
+
 commands:
   clase:
     description: "Clases"
@@ -15,55 +29,70 @@ commands:
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   banco:
     description: "Banco"
-    usage: "/Banco deposito | retiro | converciones>"
+    usage: "/Banco deposito | retiro | converciones"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   equipo:
     description: "equipo"
     usage: "/equipo <crear|eliminar|unirse|salir|info>"
     aliases: [cmd, command]
     permission-message: "No tienes permiso para usar este comando"
+
   gremio:
     description: "gremio"
-    usage: "/gremio misionesdiarias | misionesextra "
+    usage: "/gremio misionesdiarias | misionesextra"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   mercado:
     description: "mercado"
-    usage: "/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales>"
+    usage: "/mercado armaduralvl1 | armaduralvl2 | armaduralvl3 | armaduralvl4 | armaduralvl5 | armaduralvl6 | semillas | comida | bloques | minerales"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   setspawn:
     description: "setspawn"
     usage: "/setspawn"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   spawn:
     description: "spawn"
     usage: "/spawn"
     aliases: [cmd, command]
     permission-message: "No tienes permiso para usar este comando"
+
   anuncio:
     description: "anuncio"
     usage: "/anuncio"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   monedas:
     description: "monedas"
     usage: "/niveles"
     aliases: [cmd, command]
     permission: jimirpg.admin
     permission-message: "No tienes permiso para usar este comando"
+
   niveles:
     description: "niveles"
     usage: "/niveles"
     aliases: [cmd, command]
     permission: jimirpg.admin
+    permission-message: "No tienes permiso para usar este comando"
+
+  casa:
+    description: "casa"
+    usage: "/casa"
+    aliases: [cmd, command]
     permission-message: "No tienes permiso para usar este comando"

@@ -1,5 +1,10 @@
 package com.srjimi;
 
+import com.srjimi.General.Casa;
+import com.srjimi.General.Tabulador;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+
 import com.srjimi.Aldeanos.Aldeanos;
 import com.srjimi.Aldeanos.InteractuarConAldeano;
 import com.srjimi.Aldeanos.ProteccionAldeanos;
@@ -24,9 +29,12 @@ import com.srjimi.Nivel.NivelManager;
 import com.srjimi.Scoreboard.ScoreboardManager;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -50,9 +58,12 @@ public final class Main extends JavaPlugin implements Listener {
     private static Main plugin;
     private ClasesMain clasesMain;
     private AldeanoClases aldeanoClases;
+    private Casa casa;
+    private Tabulador tabulador;
 
     @Override
     public void onEnable() {
+        casa = new Casa(getDataFolder());
         crearBancoYml();
         new BancoListener(this);
         new ProteccionAldeanos(this);
@@ -73,6 +84,9 @@ public final class Main extends JavaPlugin implements Listener {
         clasesMain = new ClasesMain(this);
         aldeanoClases = new AldeanoClases(this);
         clasesMain = new ClasesMain(this);
+        tabulador = new Tabulador(this);
+
+        tabulador.aplicarATodos();
 
         // comandos
 
@@ -116,6 +130,10 @@ public final class Main extends JavaPlugin implements Listener {
                 event -> event.registrar().register("niveles", new ComandosNiveles(nivelManager))
         );
 
+        this.getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
+                event -> event.registrar().register("casa", new ComandosCasa(casa))
+        );
+
         //Eventos
         getServer().getPluginManager().registerEvents(new IngresoSalidaListener(this), this);
         getServer().getPluginManager().registerEvents(new AldeanoBancoDeposito(this), this);
@@ -128,9 +146,17 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new EquipoListener(equipoManager), this);
         getServer().getPluginManager().registerEvents(new ClasesListener(this), this);
         getServer().getPluginManager().registerEvents(new MuerteListener(), this);
+        getServer().getPluginManager().registerEvents(new Listener() {
+            @EventHandler
+            public void onJoin(PlayerJoinEvent e) {
+                tabulador.aplicarTab(e.getPlayer());
+                tabulador.actualizarNombresEnTab();
+            }
+        }, this);
 
 
         getLogger().info("¡JimiRPG ha sido activado!");
+
     }
 
     @Override
@@ -147,9 +173,6 @@ public final class Main extends JavaPlugin implements Listener {
         bancoConfig = YamlConfiguration.loadConfiguration(bancoFile);
     }
 
-    public FileConfiguration getBancoConfig() {
-        return bancoConfig;
-    }
 
     public void guardarBancoConfig() {
         try {
@@ -159,6 +182,9 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 
+    public FileConfiguration getBancoConfig() {
+        return bancoConfig;
+    }
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
     }
@@ -167,4 +193,9 @@ public final class Main extends JavaPlugin implements Listener {
     public EquipoManager getEquipoManager() {return equipoManager;}
     public ClasesMain getClasesMain(){return clasesMain;}
     public AldeanoClases getAldeanoClases(){return aldeanoClases;}
+    public NivelManager getLevelManager() {
+        return nivelManager;
+    }
+
+
 }
